@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Reflection;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -50,6 +51,16 @@ public sealed class AutoFilterDataGridTests
 
                 result.Should().Be(Visibility.Collapsed);
             });
+    }
+
+    [Fact]
+    public void ControlAssemblyDeclaresGenericThemeDictionaryInSourceAssembly()
+    {
+        ThemeInfoAttribute? themeInfo =
+            typeof(AutoFilterDataGrid).Assembly.GetCustomAttribute<ThemeInfoAttribute>();
+
+        themeInfo.Should().NotBeNull();
+        themeInfo!.GenericDictionaryLocation.Should().Be(ResourceDictionaryLocation.SourceAssembly);
     }
 
     private static void RunOnSta(Action action)
