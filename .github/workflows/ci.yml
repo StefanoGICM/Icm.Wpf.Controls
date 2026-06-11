@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-test-pack:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore Icm.Wpf.Controls.sln
+
+      - name: Build
+        run: dotnet build Icm.Wpf.Controls.sln -c Release --no-restore
+
+      - name: Test
+        run: dotnet test Icm.Wpf.Controls.sln -c Release --no-build
+
+      - name: Pack
+        run: dotnet pack src/Icm.Wpf.Controls/Icm.Wpf.Controls.csproj -c Release --no-build -o artifacts/packages
+
+      - name: Publish GitHub package
+        if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+        run: dotnet nuget push "artifacts/packages/*.nupkg" --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key "${{ secrets.GITHUB_TOKEN }}" --skip-duplicate
