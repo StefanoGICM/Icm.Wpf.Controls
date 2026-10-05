@@ -1,6 +1,7 @@
 # Icm.Wpf.Controls
 
-Shared WPF controls for ICM desktop applications.
+Shared WPF controls for ICM desktop applications. The package targets `net10.0-windows` and
+builds with the .NET 10 SDK pinned in `global.json`.
 
 ## Controls
 
