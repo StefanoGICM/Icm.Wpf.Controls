@@ -20,7 +20,7 @@ dotnet pack .\src\Icm.Wpf.Controls\Icm.Wpf.Controls.csproj -c Release -o .\artif
 Publish to the internal GitHub Packages feed:
 
 ```powershell
-dotnet nuget push .\artifacts\packages\Icm.Wpf.Controls.1.0.3.nupkg `
+dotnet nuget push .\artifacts\packages\Icm.Wpf.Controls.2.0.0.nupkg `
   --source https://nuget.pkg.github.com/StefanoGICM/index.json `
   --api-key $env:NUGET_AUTH_TOKEN `
   --skip-duplicate
