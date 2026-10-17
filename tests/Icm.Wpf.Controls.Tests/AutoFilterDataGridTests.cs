@@ -1,59 +1,48 @@
 using System.Globalization;
 using System.Reflection;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Icm.Wpf.Controls.Tests;
 
+[TestClass]
 public sealed class AutoFilterDataGridTests
 {
-    [Fact]
+    [STATestMethod]
     public void InitialFilterValueAttachedPropertyRoundTrips()
     {
-        RunOnSta(
-            () =>
-            {
-                DataGridCheckBoxColumn column = new();
+        DataGridCheckBoxColumn column = new();
 
-                AutoFilterDataGrid.SetInitialFilterValue(column, false);
+        AutoFilterDataGrid.SetInitialFilterValue(column, false);
 
-                AutoFilterDataGrid.GetInitialFilterValue(column).Should().Be(false);
-            });
+        AutoFilterDataGrid.GetInitialFilterValue(column).Should().Be(false);
     }
 
-    [Fact]
+    [STATestMethod]
     public void CanUserFilterDataDefaultsToTrue()
     {
-        RunOnSta(
-            () =>
-            {
-                AutoFilterDataGrid grid = new();
+        AutoFilterDataGrid grid = new();
 
-                grid.CanUserFilterData.Should().BeTrue();
-            });
+        grid.CanUserFilterData.Should().BeTrue();
     }
 
-    [Fact]
+    [STATestMethod]
     public void FilterButtonVisibilityConverterCollapsesWhenGridFilteringIsDisabled()
     {
-        RunOnSta(
-            () =>
-            {
-                AutoFilterDataGridFilterButtonVisibilityConverter converter = new();
-                DataGridTextColumn column = new()
-                {
-                    Binding = new System.Windows.Data.Binding(nameof(Row.Name))
-                };
+        AutoFilterDataGridFilterButtonVisibilityConverter converter = new();
+        DataGridTextColumn column = new()
+        {
+            Binding = new System.Windows.Data.Binding(nameof(Row.Name))
+        };
 
-                object result = converter.Convert([false, column], typeof(Visibility), parameter: null!, CultureInfo.InvariantCulture);
+        object result = converter.Convert([false, column], typeof(Visibility), parameter: null!, CultureInfo.InvariantCulture);
 
-                result.Should().Be(Visibility.Collapsed);
-            });
+        result.Should().Be(Visibility.Collapsed);
     }
 
-    [Fact]
+    [TestMethod]
     public void ControlAssemblyDeclaresGenericThemeDictionaryInSourceAssembly()
     {
         ThemeInfoAttribute? themeInfo =
@@ -61,32 +50,6 @@ public sealed class AutoFilterDataGridTests
 
         themeInfo.Should().NotBeNull();
         themeInfo!.GenericDictionaryLocation.Should().Be(ResourceDictionaryLocation.SourceAssembly);
-    }
-
-    private static void RunOnSta(Action action)
-    {
-        Exception? exception = null;
-        Thread thread = new(
-            () =>
-            {
-                try
-                {
-                    action();
-                }
-                catch (Exception caught)
-                {
-                    exception = caught;
-                }
-            });
-
-        thread.SetApartmentState(ApartmentState.STA);
-        thread.Start();
-        thread.Join();
-
-        if (exception is not null)
-        {
-            throw exception;
-        }
     }
 
     private sealed record Row(string Name);
