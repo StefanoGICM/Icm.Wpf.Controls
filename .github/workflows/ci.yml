@@ -32,7 +32,7 @@ jobs:
         run: dotnet build Icm.Wpf.Controls.sln -c Release --no-restore
 
       - name: Test
-        run: dotnet test Icm.Wpf.Controls.sln -c Release --no-build
+        run: dotnet test --solution Icm.Wpf.Controls.sln -c Release --no-build
 
       - name: Pack
         run: dotnet pack src/Icm.Wpf.Controls/Icm.Wpf.Controls.csproj -c Release --no-build -o artifacts/packages
