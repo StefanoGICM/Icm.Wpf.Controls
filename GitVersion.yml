@@ -1,0 +1,39 @@
+# Based on the ICM pre-1.0 GitFlow template (Skills product: skills/manage-project-versions/assets);
+# GitVersion.Tool owns version calculation. Every repository of the Icm.Bom suite restarts at 0.1.0
+# (owner, 2026-11-03), because the suite is experimental: before, the project typed its own
+# Version (2.0.0) and shipped as a NuGet package; its consumers now build it from source.
+# Under 0.x a feature or a breaking change raises the minor and a fix the patch. next-version is the
+# unreleased bootstrap: remove it once v0.1.0, the first genuine release tag, is on master.
+workflow: GitFlow/v1
+next-version: 0.1.0
+tag-prefix: '[vV]?'
+update-build-number: false
+major-version-bump-message: '(?!)'
+minor-version-bump-message: '(?m)^feat(\([^\r\n]+\))?!?:|^[a-z]+(\([^\r\n]+\))?!:|^BREAKING[ -]CHANGE:'
+patch-version-bump-message: '(?m)^fix(\([^\r\n]+\))?:'
+no-bump-message: '(?!)'
+assembly-versioning-format: '{Major}.{Minor}.0.0'
+assembly-file-versioning-format: '{Major}.{Minor}.{Patch}.{WeightedPreReleaseNumber}'
+assembly-informational-format: '{SemVer}+sha.{Sha}'
+# The tags v1.0.1, v1.0.2, v1.0.3 (2026-06-11) and v2.0.0 (2026-10-05) belong to the numbering before
+# the restart: GitVersion would build on them and ignore next-version. Their commits are ignored as
+# version sources; the tags stay.
+ignore:
+  sha:
+    - 77f6b7b976175929f8cb90e873ff18ec7d44fdc7
+    - a59da16001da7eee3c026410fdcaa61080e7a466
+    - beba69f5c0843951718f8e04f40b3e6af3d93b83
+    - 81526b779063b4bde76d8f119a3e67e81850b2c4
+branches:
+  develop:
+    label: alpha
+    mode: ContinuousDelivery
+  release:
+    label: rc
+    mode: ContinuousDelivery
+  hotfix:
+    label: rc
+    mode: ContinuousDelivery
+  feature:
+    label: 'alpha.{BranchName}'
+    mode: ContinuousDelivery

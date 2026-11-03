@@ -5,3 +5,6 @@ TestResults/
 artifacts/
 *.user
 *.suo
+
+# GitVersion build inputs (scripts/versioning/Prepare-Version.ps1)
+.artifacts/

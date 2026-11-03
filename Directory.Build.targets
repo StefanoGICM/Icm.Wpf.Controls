@@ -1,0 +1,6 @@
+<Project>
+  <!-- A release build (IcmReleaseBuild=true, after scripts/versioning/Prepare-Version.ps1) takes the
+       version GitVersion computes. Restores never import it: they keep the development version of
+       Directory.Build.props, which the lock files record for the projects referenced from source.
+       The test projects (MSTest.Sdk) are no release unit: they stay unqualified. -->
+  <Import Project="$(MSBuildThisFileDirectory)scripts/versioning/Versioning.targets" Condition="'$(MSBuildIsRestoring)' != 'true' and '$(UsingMSTestSdk)' != 'true'" /></Project>

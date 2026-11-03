@@ -1,0 +1,7 @@
+<Project>
+  <!-- Ordinary builds are unqualified development builds, 0.0.0-dev for every project and never a
+       release's. A release build takes its version from GitVersion (Directory.Build.targets). -->
+  <PropertyGroup>
+    <VersionPrefix>0.0.0</VersionPrefix>
+    <VersionSuffix>dev</VersionSuffix>
+  </PropertyGroup></Project>

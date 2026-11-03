@@ -1,0 +1,48 @@
+<Project>
+  <!-- Generated from Skills product: skills/manage-project-versions/assets.
+       A release build checks each repository's prepared inputs once per build invocation and assumes
+       that the source checkpoint does not change during that build; the release entrypoint owns that. -->
+  <PropertyGroup>
+    <_IcmVersionRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../..'))</_IcmVersionRoot>
+    <!-- MSBuild decodes %XX in this file's own path (the project path keeps it) and cmd.exe expands
+         %NAME%: either could act on another folder, so release builds refuse such a path before any import. -->
+    <_IcmVersionPathRefused Condition="$(MSBuildProjectDirectory.Contains('%')) or $(MSBuildThisFileDirectory.Contains('%')) or !$([System.IO.File]::Exists('$(MSBuildThisFileFullPath)'))">true</_IcmVersionPathRefused>
+  </PropertyGroup>
+  <Import Project="$(_IcmVersionRoot)/.artifacts/versioning/Version.props" Condition="'$(IcmReleaseBuild)' == 'true' and '$(_IcmVersionPathRefused)' != 'true' and Exists('$(_IcmVersionRoot)/.artifacts/versioning/Version.props')" />
+  <ItemGroup Condition="'$(IcmReleaseBuild)' == 'true'">
+    <AssemblyMetadata Remove="IcmProductVersion" />
+    <AssemblyMetadata Include="IcmProductVersion" Value="$(IcmProductVersion)" />
+  </ItemGroup>
+  <!-- A generic installer template may package a different product. Its explicit
+       payload version remains caller-owned. Only a repository's own MSI opts in. -->
+  <PropertyGroup Condition="'$(IcmReleaseBuild)' == 'true' and '$(MSBuildProjectExtension)' == '.wixproj' and '$(IcmUseRepositoryMsiVersion)' == 'true'">
+    <ProductVersion>$(IcmMsiVersion)</ProductVersion>
+  </PropertyGroup>
+  <Target Name="VerifyIcmReleaseVersion" BeforeTargets="PrepareForBuild;Pack;Publish" Condition="'$(IcmReleaseBuild)' == 'true'">
+    <Error Condition="'$(_IcmVersionPathRefused)' == 'true'" Text="Release builds refuse a repository or project path containing '%': MSBuild and cmd.exe would rewrite it. Move it to a path without '%'." />
+    <Error Condition="!Exists('$(_IcmVersionRoot)/.artifacts/versioning/Version.props')" Text="Prepare this repository's GitVersion build inputs before a release build." />
+    <Error Condition="'$(Version)' != '$(IcmProductVersion)' or '$(PackageVersion)' != '$(IcmProductVersion)'" Text="Global version overrides conflict with this repository's GitVersion inputs." />
+    <Error Condition="'$(AssemblyVersion)' != '$(IcmExpectedAssemblyVersion)' or '$(FileVersion)' != '$(IcmExpectedFileVersion)' or '$(InformationalVersion)' != '$(IcmExpectedInformationalVersion)'" Text="Assembly version overrides conflict with this repository's GitVersion inputs." />
+    <!-- Every project instance of this repository requests the same check: this file built as a
+         project without per-project or per-pass global properties. MSBuild runs it once per build
+         invocation and answers the other requests from its result cache. Escaped: a path may hold ';'.
+         IcmVersionCommit keeps differently prepared inputs apart. Known limit: a global property not
+         removed here, such as ProjectReference AdditionalProperties, makes another instance; the
+         check stays correct but repeats. -->
+    <MSBuild Projects="$([MSBuild]::Escape('$(MSBuildThisFileFullPath)'))" Targets="_IcmCheckReleaseVersion" Properties="IcmVersionCommit=$(IcmVersionCommit)" RemoveProperties="TargetFramework;TargetFrameworks;RuntimeIdentifier;RuntimeIdentifiers;SelfContained;_CommandLineDefinedRuntimeIdentifier;_CommandLineDefinedSelfContained;Platform;Configuration;PlatformTarget;PublishDir;_IsPublishing;_IsPacking;NoBuild;BuildProjectReferences;SolutionDir;SolutionExt;SolutionFileName;SolutionName;SolutionPath;CurrentSolutionConfigurationContents;BuildingSolutionFile;IcmReleaseBuild;OutDir;OutputPath;_CommandLineDefinedOutputPath;BaseIntermediateOutputPath;IntermediateOutputPath;ArtifactsPath" />
+    <Error Condition="'$(MSBuildProjectExtension)' == '.wixproj' and '$(IcmUseRepositoryMsiVersion)' == 'true' and ('$(IcmMsiVersion)' == '' or '$(ProductVersion)' != '$(IcmMsiVersion)')" Text="The repository MSI version is missing, outside native limits or overridden; do not truncate it." />
+  </Target>
+  <!-- Internal: the binding check, without re-running GitVersion. Release/package entrypoints own -Verify. -->
+  <Target Name="_IcmCheckReleaseVersion">
+    <Exec Command="pwsh -NoLogo -NoProfile -File &quot;$(_IcmVersionRoot)/scripts/versioning/Prepare-Version.ps1&quot; -Repository &quot;$(_IcmVersionRoot)&quot; -Check" StandardOutputImportance="high" StandardErrorImportance="high" ConsoleToMSBuild="true">
+      <Output TaskParameter="ConsoleOutput" PropertyName="_IcmVersionChecked" />
+    </Exec>
+    <Error Condition="'$(IcmVersionCommit)' != '' and !$(_IcmVersionChecked.EndsWith(' at $(IcmVersionCommit)'))" Text="The requesting project imported version inputs of commit $(IcmVersionCommit); keep the source checkpoint unchanged during a release build." />
+  </Target>
+  <Target Name="RequireIcmPackageVersion" BeforeTargets="Pack;Publish">
+    <Error Condition="'$(IcmReleaseBuild)' != 'true'" Text="Packaging requires prepared repository version inputs and IcmReleaseBuild=true. Ordinary builds remain unqualified." />
+  </Target>
+  <Target Name="RequireIcmNativePackageVersion" BeforeTargets="PrepareForBuild" Condition="'$(MSBuildProjectExtension)' == '.wixproj'">
+    <Error Condition="'$(IcmReleaseBuild)' != 'true'" Text="MSI packaging requires prepared repository version inputs and IcmReleaseBuild=true." />
+  </Target>
+</Project>
