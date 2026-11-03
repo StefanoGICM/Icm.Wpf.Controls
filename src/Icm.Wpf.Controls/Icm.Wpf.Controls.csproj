@@ -5,23 +5,15 @@
     <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <PackageId>Icm.Wpf.Controls</PackageId>
-    <Version>2.0.0</Version>
     <Authors>ICM</Authors>
     <Company>ICM</Company>
     <Description>Shared WPF controls for ICM desktop applications.</Description>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/StefanoGICM/Icm.Wpf.Controls</RepositoryUrl>
+    <!-- Its consumers build it from source (ProjectReference) since 2026-11-03: no package. -->
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
