@@ -10,6 +10,9 @@
     <!-- The four tests run on STA threads one at a time. -->
     <MSTestParallelizeScope>None</MSTestParallelizeScope>
     <TestingExtensionsProfile>Default</TestingExtensionsProfile>
+    <!-- A crash or a hang leaves a dump beside the TRX report: the gate asks for crash and hang dumps. -->
+    <EnableMicrosoftTestingExtensionsCrashDump>true</EnableMicrosoftTestingExtensionsCrashDump>
+    <EnableMicrosoftTestingExtensionsHangDump>true</EnableMicrosoftTestingExtensionsHangDump>
   </PropertyGroup>
 
   <ItemGroup>
