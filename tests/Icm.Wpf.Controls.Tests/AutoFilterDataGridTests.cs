@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Icm.Wpf.Controls.Tests;
 
 [TestClass]
+[TestCategory("Component")]
 public sealed class AutoFilterDataGridTests
 {
     [STATestMethod]
